@@ -11,6 +11,13 @@
 
 #define PORT 9999
 
+void resetbuf(char *buf,int len)
+{
+	while(len)
+		buf[--len]='\0';
+}
+
+
 main()
 {
 	struct sockaddr_in sockin;
@@ -34,26 +41,26 @@ main()
 		}
 		struct sockaddr_in client_addr;
 		int client_addr_len=0;
+	char c[]="hello from server\n";
+	char *buf=(char *)calloc(1000,sizeof(char));
+	int n;
+	while(1)
+	{	
 	int socket_tun=accept(socketfd,(struct sockaddr *) &client_addr, &client_addr_len);
 	if(socket_tun==-1)
 	{
 		printf("error accepting connection\n");
 	}
-	char c[]="hello from server";
-	char *buf=(char *)calloc(1000,sizeof(char));
-	strcpy(buf,c);
 	printf("client connected with ip address: %s\n",inet_ntoa(client_addr.sin_addr));
-	//read(socket_tun,buf,1000);
-	int n;
-	while(1)
-	{
+
 	while((n=recv(socket_tun,buf,1000,0))>0)
 	{
 		printf("received %s\n",buf);
 	send(socket_tun,buf,strlen(buf),0);
-
+	resetbuf(buf,1000);
 	send(socket_tun,&c,strlen(c),0);
 	}
+	close(socket_tun);
 	}
 	close(socketfd);
 }
