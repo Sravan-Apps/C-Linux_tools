@@ -9,7 +9,6 @@
 #include <stdlib.h>
 #include <arpa/inet.h>
 
-#define PORT 9999
 
 void resetbuf(char *buf,int len)
 {
@@ -17,14 +16,23 @@ void resetbuf(char *buf,int len)
 		buf[--len]='\0';
 }
 
-
-main()
+void print_help()
 {
-	struct sockaddr_in sockin;
+	printf("Usage: socket_server <port_to_listen>\n");
+}
 
+main(int argc,char *argv[])
+{
+	if(argc!=2)
+	{
+		print_help();
+		exit(1);
+	}
+	struct sockaddr_in sockin;
+	int port=atoi(argv[1]);
 	int socketfd=socket(AF_INET,SOCK_STREAM,0);
 	sockin.sin_family=AF_INET;
-	sockin.sin_port=htons(PORT);
+	sockin.sin_port=htons(port);
 	sockin.sin_addr.s_addr=htonl(INADDR_ANY);
 	printf("%d\n",sizeof(sockin));
 	int bindsuccess=bind(socketfd,(struct sockaddr *) &sockin,sizeof(sockin));
@@ -36,7 +44,7 @@ main()
 	int listensuccess=listen(socketfd,128);
 	if(listensuccess)
 		{
-			printf("Port binding failed on addr %s and port %s",sockin.sin_addr.s_addr,sockin.sin_port);
+			printf("Listen failed on addr %s and port %s",sockin.sin_addr.s_addr,sockin.sin_port);
 			exit(1);
 		}
 		struct sockaddr_in client_addr;
@@ -55,10 +63,10 @@ main()
 
 	while((n=recv(socket_tun,buf,1000,0))>0)
 	{
-		printf("received %s\n",buf);
+	printf("received %s",buf);
 	send(socket_tun,buf,strlen(buf),0);
 	resetbuf(buf,1000);
-	send(socket_tun,&c,strlen(c),0);
+	//send(socket_tun,&c,strlen(c),0);
 	}
 	close(socket_tun);
 	}
